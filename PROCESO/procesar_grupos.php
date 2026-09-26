@@ -16,15 +16,31 @@
                     </div>
                     <div class="card-body p-4">
                         <?php
+                        require_once "../conexion.php";
+
+                        // Recibir el campo enviado desde REGISTRO/grupos.php
                         $descripcion = $_POST['descripcion'] ?? '';
+
+                        // Inserción en la tabla grupo usando la columna exacta: descripcion_grupo
+                        $sql = "INSERT INTO grupo (descripcion_grupo) VALUES (?)";
+
+                        if ($stmt = $mysqli->prepare($sql)) {
+                            $stmt->bind_param("s", $descripcion);
+                            $stmt->execute();
+                            $stmt->close();
+                        } else {
+                            echo "<div class='alert alert-danger'>Error SQL: " . htmlspecialchars($mysqli->error) . "</div>";
+                        }
                         ?>
+
                         <div class="alert alert-success" role="alert">
                             <h5 class="alert-heading fw-bold mb-2">¡Grupo registrado con éxito!</h5>
                             <p class="mb-0">
                                 <strong>Descripción:</strong> <?php echo htmlspecialchars($descripcion); ?>
                             </p>
                         </div>
-                        <a href="../REGISTRO/grupos.php" class="btn btn-outline-success mt-3 fw-bold">← Volver al formulario</a>
+
+                        <a href="../REGISTRO/grupos.php" class="btn btn-outline-success mt-3">Volver</a>
                     </div>
                 </div>
             </div>

@@ -16,6 +16,9 @@
                     </div>
                     <div class="card-body p-4">
                         <?php
+                        require_once "../conexion.php";
+
+                        // Recibir los campos enviadas desde el formulario REGISTRO/alumnos.php
                         $matricula = $_POST['matricula'] ?? '';
                         $nombre    = $_POST['nombre'] ?? '';
                         $apaterno  = $_POST['apaterno'] ?? '';
@@ -23,7 +26,20 @@
                         $domicilio = $_POST['domicilio'] ?? '';
                         $mail      = $_POST['mail'] ?? '';
                         $tel       = $_POST['tel'] ?? '';
+
+                        // Inserción en la tabla alumnos usando los nombres exactos de columnas de la BD
+                        $sql = "INSERT INTO alumnos (matricula_al, nombre_al, apaterno_al, amaterno_al, dom_al, mail_al, tel_al) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+                        if ($stmt = $mysqli->prepare($sql)) {
+                            $stmt->bind_param("sssssss", $matricula, $nombre, $apaterno, $amaterno, $domicilio, $mail, $tel);
+                            $stmt->execute();
+                            $stmt->close();
+                        } else {
+                            echo "<div class='alert alert-danger'>Error SQL: " . htmlspecialchars($mysqli->error) . "</div>";
+                        }
                         ?>
+
                         <div class="alert alert-success" role="alert">
                             <h5 class="alert-heading fw-bold mb-2">¡Alumno registrado con éxito!</h5>
                             <p class="mb-0">
@@ -32,7 +48,8 @@
                                 <strong>Email:</strong> <?php echo htmlspecialchars($mail); ?>
                             </p>
                         </div>
-                        <a href="../REGISTRO/alumnos.php" class="btn btn-outline-primary mt-3 fw-bold">← Volver al formulario</a>
+
+                        <a href="../REGISTRO/alumnos.php" class="btn btn-outline-primary mt-3">Volver</a>
                     </div>
                 </div>
             </div>

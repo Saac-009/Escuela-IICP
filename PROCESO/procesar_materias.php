@@ -16,15 +16,31 @@
                     </div>
                     <div class="card-body p-4">
                         <?php
+                        require_once "../conexion.php";
+
+                        // Recibir el campo enviado desde REGISTRO/materias.php
                         $descripcion = $_POST['descripcion'] ?? '';
+
+                        // Inserción en la tabla materias con el nombre exacto de columna: descripcion_mat
+                        $sql = "INSERT INTO materias (descripcion_mat) VALUES (?)";
+
+                        if ($stmt = $mysqli->prepare($sql)) {
+                            $stmt->bind_param("s", $descripcion);
+                            $stmt->execute();
+                            $stmt->close();
+                        } else {
+                            echo "<div class='alert alert-danger'>Error SQL: " . htmlspecialchars($mysqli->error) . "</div>";
+                        }
                         ?>
+
                         <div class="alert alert-warning" role="alert">
                             <h5 class="alert-heading fw-bold mb-2">¡Materia registrada con éxito!</h5>
                             <p class="mb-0">
                                 <strong>Descripción:</strong> <?php echo htmlspecialchars($descripcion); ?>
                             </p>
                         </div>
-                        <a href="../REGISTRO/materias.php" class="btn btn-outline-warning text-dark mt-3 fw-bold">← Volver al formulario</a>
+
+                        <a href="../REGISTRO/materias.php" class="btn btn-outline-warning text-dark mt-3">Volver</a>
                     </div>
                 </div>
             </div>

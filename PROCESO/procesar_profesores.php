@@ -16,21 +16,33 @@
                     </div>
                     <div class="card-body p-4">
                         <?php
+                        require_once "../conexion.php";
+
                         $nombre_prof    = $_POST['nombre_prof'] ?? '';
                         $apaterno_prof  = $_POST['apaterno_prof'] ?? '';
                         $amaterno_prof  = $_POST['amaterno_prof'] ?? '';
                         $mail_prof      = $_POST['mail_prof'] ?? '';
                         $domicilio_prof = $_POST['domicilio_prof'] ?? '';
                         $tel_prof       = $_POST['tel_prof'] ?? '';
+
+                        // Inserción en la base de datos saeIICP
+                        $sql = "INSERT INTO profesores (nombre_prof, apaterno_prof, amaterno_prof) VALUES (?, ?, ?)";
+                        if ($stmt = $mysqli->prepare($sql)) {
+                            $stmt->bind_param("sss", $nombre_prof, $apaterno_prof, $amaterno_prof);
+                            $stmt->execute();
+                            $stmt->close();
+                        }
                         ?>
+
                         <div class="alert alert-dark" role="alert">
                             <h5 class="alert-heading fw-bold mb-2">¡Profesor registrado con éxito!</h5>
                             <p class="mb-0">
-                                <strong>Nombre:</strong> <?php echo htmlspecialchars($nombre_prof . ' ' . $apaterno_prof . ' ' . $amaterno_prof); ?><br>
+                                <strong>Nombre:</strong> <?php echo htmlspecialchars($nombre_prof); ?><br>
                                 <strong>Email:</strong> <?php echo htmlspecialchars($mail_prof); ?>
                             </p>
                         </div>
-                        <a href="../REGISTRO/profesores.php" class="btn btn-outline-dark mt-3 fw-bold">← Volver al formulario</a>
+
+                        <a href="../REGISTRO/profesores.php" class="btn btn-outline-dark mt-3">Volver</a>
                     </div>
                 </div>
             </div>

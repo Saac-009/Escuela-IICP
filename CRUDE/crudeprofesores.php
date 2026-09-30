@@ -62,7 +62,7 @@ $profesores = $resultado ? $resultado->fetch_all(MYSQLI_ASSOC) : [];
                                     </a>
                                 </td>
                                 <td class="text-center">
-                                    <a href="../baja/baja_prof.php?idprof=<?php echo $prof['idprof']; ?>" class="btn btn-dark btn-sm d-inline-block" style="cursor: pointer;" title="Eliminar">
+                                    <a href="../BAJA/baja_prof.php?idprof=<?php echo $prof['idprof']; ?>" class="btn btn-dark btn-sm d-inline-block" style="cursor: pointer;" title="Eliminar">
                                         <i class="bi bi-backspace-reverse"></i>
                                     </a>
                                 </td>

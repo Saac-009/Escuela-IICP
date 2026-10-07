@@ -1,57 +1,84 @@
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+include '../conexion.php'; 
+
+if (!isset($conexion) && isset($mysqli)) {
+    $conexion = $mysqli;
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Alumnos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Registro de Alumnos - Escuela IICP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
+    </style>
 </head>
 <body class="bg-light">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-primary text-white text-center py-3">
-                        <h4 class="mb-0 fw-bold">Registro de Alumnos</h4>
-                    </div>
-                    <div class="card-body p-4">
-                        <form action="../PROCESO/procesar_alumnos.php" method="POST">
-                            <div class="mb-3">
-                                <label for="matricula" class="form-label font-monospace">Matrícula</label>
-                                <input type="text" class="form-control" id="matricula" name="matricula" placeholder="Ingresa tu matrícula" required>
+
+<?php if (file_exists('../navegacion.php')) include '../navegacion.php'; ?>
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                <div class="card-header custom-header p-4">
+                    <h4 class="mb-0 fw-bold">Registro de Alumno</h4>
+                    <small class="opacity-75">Ingrese la información completa para dar de alta al alumno</small>
+                </div>
+                <div class="card-body p-4">
+                    <form action="../PROCESO/procesar_alumnos.php" method="POST">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="matricula_al" class="form-label fw-semibold">Matrícula</label>
+                                <input type="text" class="form-control" id="matricula_al" name="matricula_al" placeholder="Ej. A12345" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="nombre" class="form-label font-monospace">Nombre</label>
-                                <input type="text" class="form-control" id="nombre" name="nombre" placeholder="Ingresa tu nombre" required>
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre_al" class="form-label fw-semibold">Nombre(s)</label>
+                                <input type="text" class="form-control" id="nombre_al" name="nombre_al" placeholder="Ingrese el nombre" required>
                             </div>
-                            <div class="row mb-3">
-                                <div class="col">
-                                    <label for="apaterno" class="form-label font-monospace">A. Paterno</label>
-                                    <input type="text" class="form-control" id="apaterno" name="apaterno" placeholder="Ingresa tu Apaterno" required>
-                                </div>
-                                <div class="col">
-                                    <label for="amaterno" class="form-label font-monospace">A. Materno</label>
-                                    <input type="text" class="form-control" id="amaterno" name="amaterno" placeholder="Ingresa tu Amaterno">
-                                </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="apaterno_al" class="form-label fw-semibold">Apellido Paterno</label>
+                                <input type="text" class="form-control" id="apaterno_al" name="apaterno_al" placeholder="Apellido paterno" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="domicilio" class="form-label font-monospace">Domicilio</label>
-                                <input type="text" class="form-control" id="domicilio" name="domicilio" placeholder="Ingresa tu Domicilio">
+                            <div class="col-md-6 mb-3">
+                                <label for="amaterno_al" class="form-label fw-semibold">Apellido Materno</label>
+                                <input type="text" class="form-control" id="amaterno_al" name="amaterno_al" placeholder="Apellido materno" required>
                             </div>
-                            <div class="mb-3">
-                                <label for="mail" class="form-label font-monospace">Email Address</label>
-                                <input type="email" class="form-control" id="mail" name="mail" placeholder="Ingresa tu Email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="dom_al" class="form-label fw-semibold">Domicilio</label>
+                            <input type="text" class="form-control" id="dom_al" name="dom_al" placeholder="Calle, Número, Colonia, Ciudad">
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="mail_al" class="form-label fw-semibold">Correo Electrónico</label>
+                                <input type="email" class="form-control" id="mail_al" name="mail_al" placeholder="ejemplo@correo.com">
                             </div>
-                            <div class="mb-4">
-                                <label for="tel" class="form-label font-monospace">Teléfono</label>
-                                <input type="tel" class="form-control" id="tel" name="tel" placeholder="Ingresa tu Teléfono">
+                            <div class="col-md-6 mb-4">
+                                <label for="tel_al" class="form-label fw-semibold">Teléfono</label>
+                                <input type="tel" class="form-control" id="tel_al" name="tel_al" placeholder="Ej. 2291234567">
                             </div>
-                            <button type="submit" class="btn btn-primary w-100 fw-bold">Guardar Alumno</button>
-                        </form>
-                    </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="../CRUDE/crudealumnos.php" class="btn btn-outline-secondary">Ver Alumnos</a>
+                            <button type="submit" class="btn btn-primary fw-bold px-4" style="background: #1e3c72; border: none;">Guardar Registro</button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

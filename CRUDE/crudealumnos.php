@@ -1,88 +1,94 @@
 <?php
-require_once "../conexion.php";
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-$sql = "SELECT idalumn, matricula_al, nombre_al, apaterno_al, amaterno_al, dom_al, mail_al 
-        FROM alumnos 
-        WHERE estatus_al = 'ALTA' OR estatus_al IS NULL";
-$resultado = $mysqli->query($sql);
-$alumnos = $resultado ? $resultado->fetch_all(MYSQLI_ASSOC) : [];
+include '../conexion.php'; 
+
+if (!isset($conexion) && isset($mysqli)) {
+    $conexion = $mysqli;
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Alumnos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <title>Alumnos - Escuela IICP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
+    </style>
 </head>
-<body>
+<body class="bg-light">
 
-<?php include_once "../navegacion.php"; ?>
+<?php if (file_exists('../navegacion.php')) include '../navegacion.php'; ?>
 
 <div class="container my-4">
-    <div class="row">
-        <div class="col-sm-1"></div>
-
-        <div class="col-sm-10">
-            <h1 class="text-center my-4">Catálogo de Alumnos</h1>
-
-            <table class="table align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Matrícula</th>
-                        <th scope="col">Nombre</th>
-                        <th scope="col">Apellido Paterno</th>
-                        <th scope="col">Apellido Materno</th>
-                        <th scope="col">Domicilio</th>
-                        <th scope="col">Email</th>
-                        <th scope="col" colspan="3" class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($alumnos)): ?>
-                        <?php foreach ($alumnos as $alumno): ?>
-                            <tr>
-                                <th scope="row"><?php echo htmlspecialchars($alumno['idalumn']); ?></th>
-                                <td><?php echo htmlspecialchars($alumno['matricula_al']); ?></td>
-                                <td><?php echo htmlspecialchars($alumno['nombre_al']); ?></td>
-                                <td><?php echo htmlspecialchars($alumno['apaterno_al']); ?></td>
-                                <td><?php echo htmlspecialchars($alumno['amaterno_al']); ?></td>
-                                <td><?php echo htmlspecialchars($alumno['dom_al']); ?></td>
-                                <td><?php echo htmlspecialchars($alumno['mail_al']); ?></td>
-
-                                <td class="text-center">
-                                    <a href="../REGISTRO/alumnos.php" class="btn btn-dark btn-sm d-inline-block" style="cursor: pointer;" title="Agregar">
-                                        <i class="bi bi-plus-lg"></i>
-                                    </a>
-                                </td>
-                                <td class="text-center">
-                                    <a href="../MODIFICACIONES/modif_alum.php?idalumn=<?php echo $alumno['idalumn']; ?>" class="btn btn-primary btn-sm d-inline-block" style="cursor: pointer;" title="Editar">
-                                        <i class="bi bi-pencil-fill"></i>
-                                    </a>
-                                </td>
-                                <td class="text-center">
-                                    <a href="../BAJA/baja_alum.php?idalumn=<?php echo $alumno['idalumn']; ?>" class="btn btn-dark btn-sm d-inline-block" style="cursor: pointer;" title="Eliminar">
-                                        <i class="bi bi-backspace-reverse"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="10" class="text-center">No hay alumnos registrados.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-header custom-header p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0 fw-bold">Control de Alumnos</h4>
+                <small class="opacity-75">Listado general de alumnos registrados</small>
+            </div>
+            <div>
+                <a href="../REGISTRO/alumnos.php" class="btn btn-light btn-sm fw-bold me-2">+ Nuevo Alumno</a>
+                <a href="../navegacion.php" class="btn btn-outline-light btn-sm">Menú</a>
+            </div>
         </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light border-bottom">
+                        <tr class="text-secondary small text-uppercase">
+                            <th class="ps-4">ID</th>
+                            <th>Matrícula</th>
+                            <th>Nombre</th>
+                            <th>Apellido Paterno</th>
+                            <th>Apellido Materno</th>
+                            <th>Estatus</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        if ($conexion) {
+                            $resultado = mysqli_query($conexion, "SELECT * FROM alumnos");
 
-        <div class="col-sm-1"></div>
+                            if ($resultado && mysqli_num_rows($resultado) > 0) {
+                                while ($row = mysqli_fetch_assoc($resultado)) {
+                                    $id = $row['idalumn'];
+                                    $mat = $row['matricula_al'] ?: 'N/A';
+                                    $nombre = $row['nombre_al'];
+                                    $apaterno = $row['apaterno_al'];
+                                    $amaterno = $row['amaterno_al'];
+                                    $estatus = $row['estatus_al'] ?: 'ALTA';
+
+                                    echo "<tr>";
+                                    echo "<td class='ps-4'><span class='badge bg-primary-subtle text-primary fw-bold px-2 py-1'>" . htmlspecialchars($id) . "</span></td>";
+                                    echo "<td class='fw-semibold text-dark'>" . htmlspecialchars($mat) . "</td>";
+                                    echo "<td>" . htmlspecialchars($nombre) . "</td>";
+                                    echo "<td>" . htmlspecialchars($apaterno) . "</td>";
+                                    echo "<td>" . htmlspecialchars($amaterno) . "</td>";
+                                    echo "<td><span class='badge " . ($estatus == 'ALTA' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger') . "'>" . htmlspecialchars($estatus) . "</span></td>";
+                                    echo "<td class='text-end pe-4'>";
+                                    echo "<a href='../MODIFICACIONES/modif_alum.php?id=" . urlencode($id) . "' class='btn btn-outline-primary btn-sm me-1'>Editar</a>";
+                                    echo "<a href='../BAJA/baja_alum.php?id=" . urlencode($id) . "' class='btn btn-outline-danger btn-sm'>Eliminar</a>";
+                                    echo "</td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='7' class='text-center text-muted py-4'>No hay alumnos registrados.</td></tr>";
+                            }
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

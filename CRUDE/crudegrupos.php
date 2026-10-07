@@ -1,76 +1,85 @@
 <?php
-require_once "../conexion.php";
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-$sql = "SELECT idgrupo, descripcion_grupo FROM grupo WHERE estatus_grupo = 'ALTA' OR estatus_grupo IS NULL";
-$resultado = $mysqli->query($sql);
-$grupos = $resultado ? $resultado->fetch_all(MYSQLI_ASSOC) : [];
+include '../conexion.php'; 
+
+if (!isset($conexion) && isset($mysqli)) {
+    $conexion = $mysqli;
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Grupos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <title>Grupos - Escuela IICP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
+    </style>
 </head>
-<body>
+<body class="bg-light">
 
-<?php include_once "../navegacion.php"; ?>
+<?php if (file_exists('../navegacion.php')) include '../navegacion.php'; ?>
 
 <div class="container my-4">
-    <div class="row">
-        <div class="col-sm-1"></div>
-
-        <div class="col-sm-10">
-            <h1 class="text-center my-4">Catálogo de Grupos</h1>
-
-            <table class="table align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">Descripción / Grupo</th>
-                        <th scope="col" colspan="3" class="text-center">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php if (!empty($grupos)): ?>
-                        <?php foreach ($grupos as $grup): ?>
-                            <tr>
-                                <th scope="row"><?php echo htmlspecialchars($grup['idgrupo']); ?></th>
-                                <td><?php echo htmlspecialchars($grup['descripcion_grupo']); ?></td>
-
-                                <td class="text-center">
-                                    <a href="../REGISTRO/grupos.php" class="btn btn-dark btn-sm d-inline-block" style="cursor: pointer;" title="Agregar">
-                                        <i class="bi bi-plus-lg"></i>
-                                    </a>
-                                </td>
-                                <td class="text-center">
-                                    <a href="../MODIFICACIONES/modif_grupo.php?idgrupo=<?php echo $grup['idgrupo']; ?>" class="btn btn-primary btn-sm d-inline-block" style="cursor: pointer;" title="Editar">
-                                        <i class="bi bi-pencil-fill"></i>
-                                    </a>
-                                </td>
-                                <td class="text-center">
-                                    <a href="../BAJA/baja_grupo.php?idgrupo=<?php echo $grup['idgrupo']; ?>" class="btn btn-dark btn-sm d-inline-block" style="cursor: pointer;" title="Eliminar">
-                                        <i class="bi bi-backspace-reverse"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="5" class="text-center">No hay grupos registrados.</td>
-                        </tr>
-                    <?php endif; ?>
-                </tbody>
-            </table>
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-header custom-header p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0 fw-bold">Gestión de Grupos</h4>
+                <small class="opacity-75">Grupos asignados e información de estatus</small>
+            </div>
+            <div>
+                <a href="../REGISTRO/grupos.php" class="btn btn-light btn-sm fw-bold me-2">+ Nuevo Grupo</a>
+                <a href="../navegacion.php" class="btn btn-outline-light btn-sm">Menú</a>
+            </div>
         </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light border-bottom">
+                        <tr class="text-secondary small text-uppercase">
+                            <th class="ps-4">Clave ID</th>
+                            <th>Nombre del Grupo</th>
+                            <th>Estatus</th>
+                            <th class="text-end pe-4">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        if ($conexion) {
+                            $resultado = mysqli_query($conexion, "SELECT * FROM grupo");
 
-        <div class="col-sm-1"></div>
+                            if ($resultado && mysqli_num_rows($resultado) > 0) {
+                                while ($row = mysqli_fetch_assoc($resultado)) {
+                                    $id = $row['idgrupo'];
+                                    $nombre = $row['descripcion_grupo'] ?: 'Sin asignación';
+                                    $estatus = $row['estatus_grupo'] ?: 'ALTA';
+
+                                    echo "<tr>";
+                                    echo "<td class='ps-4'><span class='badge bg-primary-subtle text-primary fw-bold px-2 py-1'>" . htmlspecialchars($id) . "</span></td>";
+                                    echo "<td class='fw-semibold text-dark'>" . htmlspecialchars($nombre) . "</td>";
+                                    echo "<td><span class='badge " . ($estatus == 'ALTA' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger') . "'>" . htmlspecialchars($estatus) . "</span></td>";
+                                    echo "<td class='text-end pe-4'>";
+                                    echo "<a href='../MODIFICACIONES/modif_grupo.php?id=" . urlencode($id) . "' class='btn btn-outline-primary btn-sm me-1'>Editar</a>";
+                                    echo "<a href='../BAJA/baja_grupo.php?id=" . urlencode($id) . "' class='btn btn-outline-danger btn-sm'>Eliminar</a>";
+                                    echo "</td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='4' class='text-center text-muted py-4'>No hay grupos registrados.</td></tr>";
+                            }
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

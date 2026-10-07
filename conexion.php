@@ -3,6 +3,7 @@ $host = "localhost";
 $usuario = "root";
 $contrasenia = ""; 
 $base_de_datos = "saeIICP"; 
+
 $mysqli = new mysqli($host, $usuario, $contrasenia, $base_de_datos);
 
 if ($mysqli->connect_errno) {
@@ -10,4 +11,7 @@ if ($mysqli->connect_errno) {
 }
 
 $mysqli->set_charset("utf8mb4");
+
+// Alias para mantener compatibilidad con funciones procedurales (mysqli_query)
+$conexion = $mysqli;
 ?>

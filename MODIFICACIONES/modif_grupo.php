@@ -18,9 +18,9 @@ if (!$grupo) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $descripcion = $_POST['descripcion_grupo'];
+    $descripcion = $_POST['des_grupo'];
 
-    $stmt_update = $mysqli->prepare("UPDATE grupo SET descripcion_grupo=? WHERE idgrupo=?");
+    $stmt_update = $mysqli->prepare("UPDATE grupo SET des_grupo=? WHERE idgrupo=?");
     $stmt_update->bind_param("si", $descripcion, $idgrupo);
 
     if ($stmt_update->execute()) {
@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <form action="" method="POST">
                         <div class="mb-3">
                             <label class="form-label">Descripción / Nombre del Grupo</label>
-                            <input type="text" name="descripcion_grupo" class="form-control" value="<?php echo htmlspecialchars($grupo['descripcion_grupo']); ?>" required>
+                            <input type="text" name="des_grupo" class="form-control" value="<?php echo htmlspecialchars($grupo['des_grupo'] ?? ''); ?>" required>
                         </div>
                         <div class="d-flex justify-content-between">
                             <a href="../CRUDE/crudegrupos.php" class="btn btn-secondary">Cancelar</a>

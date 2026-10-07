@@ -1,44 +1,98 @@
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+include '../conexion.php'; 
+
+if (!isset($conexion) && isset($mysqli)) {
+    $conexion = $mysqli;
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Alumnos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Reporte de Alumnos - Escuela IICP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
+        @media print {
+            .no-print { display: none !important; }
+            .card { border: none !important; shadow: none !important; }
+        }
+    </style>
 </head>
 <body class="bg-light">
-    <div class="container py-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold text-primary mb-0">Lista de Alumnos</h2>
-            <a href="../REGISTRO/alumnos.php" class="btn btn-primary fw-bold">+ Nuevo Alumno</a>
+
+<div class="no-print">
+    <?php if (file_exists('../navegacion.php')) include '../navegacion.php'; ?>
+</div>
+
+<div class="container my-4">
+    <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+        <div class="card-header custom-header p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="mb-0 fw-bold">📊 Reporte General de Alumnos</h4>
+                <small class="opacity-75">Consolidado oficial de matrícula de alumnos</small>
+            </div>
+            <div class="no-print">
+                <button onclick="window.print()" class="btn btn-light btn-sm fw-bold me-2">🖨️ Imprimir Reporte</button>
+                <a href="../navegacion.php" class="btn btn-outline-light btn-sm">Menú</a>
+            </div>
         </div>
-        <div class="card shadow-sm border-0">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-primary">
-                            <tr>
-                                <th>Matrícula</th>
-                                <th>Nombre Completo</th>
-                                <th>Domicilio</th>
-                                <th>Email</th>
-                                <th>Teléfono</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Aquí se iterarán los datos de la base de datos con PHP -->
-                            <tr>
-                                <td>643627s</td>
-                                <td>saac perez cortes</td>
-                                <td>psd(LC</td>
-                                <td>saac@gmail231</td>
-                                <td>553828993</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead class="table-light border-bottom">
+                        <tr class="text-secondary small text-uppercase">
+                            <th class="ps-4">ID</th>
+                            <th>Matrícula</th>
+                            <th>Nombre Completo</th>
+                            <th>Domicilio</th>
+                            <th>Correo Electrónico</th>
+                            <th>Teléfono</th>
+                            <th class="text-center pe-4">Estatus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        if ($conexion) {
+                            $resultado = mysqli_query($conexion, "SELECT * FROM alumnos");
+
+                            if ($resultado && mysqli_num_rows($resultado) > 0) {
+                                while ($row = mysqli_fetch_assoc($resultado)) {
+                                    $id = $row['idalumn'];
+                                    $mat = $row['matricula_al'] ?: 'N/A';
+                                    $nombre = trim($row['nombre_al'] . ' ' . $row['apaterno_al'] . ' ' . $row['amaterno_al']);
+                                    $dom = $row['dom_al'] ?: 'Sin registrar';
+                                    $mail = $row['mail_al'] ?: 'Sin registrar';
+                                    $tel = $row['tel_al'] ?: 'Sin registrar';
+                                    $estatus = $row['estatus_al'] ?: 'ALTA';
+
+                                    echo "<tr>";
+                                    echo "<td class='ps-4'><span class='badge bg-primary-subtle text-primary fw-bold px-2 py-1'>" . htmlspecialchars($id) . "</span></td>";
+                                    echo "<td class='fw-semibold'>" . htmlspecialchars($mat) . "</td>";
+                                    echo "<td class='text-dark fw-bold'>" . htmlspecialchars($nombre) . "</td>";
+                                    echo "<td>" . htmlspecialchars($dom) . "</td>";
+                                    echo "<td>" . htmlspecialchars($mail) . "</td>";
+                                    echo "<td>" . htmlspecialchars($tel) . "</td>";
+                                    echo "<td class='text-center pe-4'><span class='badge " . ($estatus == 'ALTA' ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger') . "'>" . htmlspecialchars($estatus) . "</span></td>";
+                                    echo "</tr>";
+                                }
+                            } else {
+                                echo "<tr><td colspan='7' class='text-center text-muted py-4'>No hay alumnos registrados para generar el reporte.</td></tr>";
+                            }
+                        }
+                        ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

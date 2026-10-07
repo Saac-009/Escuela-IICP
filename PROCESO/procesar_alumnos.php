@@ -1,59 +1,98 @@
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+include '../conexion.php'; 
+
+if (!isset($conexion) && isset($mysqli)) {
+    $conexion = $mysqli;
+}
+
+$matricula_al = trim($_POST['matricula_al'] ?? $_POST['mat_alum'] ?? '');
+$nombre_al    = trim($_POST['nombre_al'] ?? $_POST['nom_alum'] ?? '');
+$apaterno_al  = trim($_POST['apaterno_al'] ?? $_POST['appat_alum'] ?? '');
+$amaterno_al  = trim($_POST['amaterno_al'] ?? $_POST['apmat_alum'] ?? '');
+$dom_al       = trim($_POST['dom_al'] ?? '');
+$mail_al      = trim($_POST['mail_al'] ?? '');
+$tel_al       = trim($_POST['tel_al'] ?? '');
+
+$mensaje = "";
+$exito = false;
+
+if ($conexion && !empty($nombre_al)) {
+    $mat_e  = mysqli_real_escape_string($conexion, $matricula_al);
+    $nom_e  = mysqli_real_escape_string($conexion, $nombre_al);
+    $apat_e = mysqli_real_escape_string($conexion, $apaterno_al);
+    $amat_e = mysqli_real_escape_string($conexion, $amaterno_al);
+    $dom_e  = mysqli_real_escape_string($conexion, $dom_al);
+    $mail_e = mysqli_real_escape_string($conexion, $mail_al);
+    $tel_e  = mysqli_real_escape_string($conexion, $tel_al);
+
+    $sql = "INSERT INTO alumnos (matricula_al, nombre_al, apaterno_al, amaterno_al, dom_al, mail_al, tel_al, estatus_al) 
+            VALUES ('$mat_e', '$nom_e', '$apat_e', '$amat_e', '$dom_e', '$mail_e', '$tel_e', 'ALTA')";
+
+    if (mysqli_query($conexion, $sql)) {
+        $exito = true;
+        $mensaje = "¡Alumno registrado con éxito!";
+    } else {
+        $mensaje = "Error al insertar alumno: " . mysqli_error($conexion);
+    }
+} else {
+    $mensaje = "Por favor ingrese al menos el nombre del alumno.";
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Procesar Alumno</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Resultado del Registro - Escuela IICP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
+    </style>
 </head>
 <body class="bg-light">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card shadow-sm border-0 text-center">
-                    <div class="card-header bg-primary text-white py-3">
-                        <h4 class="mb-0 fw-bold">Resultado del Proceso</h4>
-                    </div>
-                    <div class="card-body p-4">
-                        <?php
-                        require_once "../conexion.php";
 
-                        // Recibir los campos enviadas desde el formulario REGISTRO/alumnos.php
-                        $matricula = $_POST['matricula'] ?? '';
-                        $nombre    = $_POST['nombre'] ?? '';
-                        $apaterno  = $_POST['apaterno'] ?? '';
-                        $amaterno  = $_POST['amaterno'] ?? '';
-                        $domicilio = $_POST['domicilio'] ?? '';
-                        $mail      = $_POST['mail'] ?? '';
-                        $tel       = $_POST['tel'] ?? '';
+<?php if (file_exists('../navegacion.php')) include '../navegacion.php'; ?>
 
-                        // Inserción en la tabla alumnos usando los nombres exactos de columnas de la BD
-                        $sql = "INSERT INTO alumnos (matricula_al, nombre_al, apaterno_al, amaterno_al, dom_al, mail_al, tel_al) 
-                                VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-                        if ($stmt = $mysqli->prepare($sql)) {
-                            $stmt->bind_param("sssssss", $matricula, $nombre, $apaterno, $amaterno, $domicilio, $mail, $tel);
-                            $stmt->execute();
-                            $stmt->close();
-                        } else {
-                            echo "<div class='alert alert-danger'>Error SQL: " . htmlspecialchars($mysqli->error) . "</div>";
-                        }
-                        ?>
-
-                        <div class="alert alert-success" role="alert">
-                            <h5 class="alert-heading fw-bold mb-2">¡Alumno registrado con éxito!</h5>
-                            <p class="mb-0">
-                                <strong>Nombre:</strong> <?php echo htmlspecialchars($nombre . ' ' . $apaterno . ' ' . $amaterno); ?><br>
-                                <strong>Matrícula:</strong> <?php echo htmlspecialchars($matricula); ?><br>
-                                <strong>Email:</strong> <?php echo htmlspecialchars($mail); ?>
-                            </p>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                <div class="card-header custom-header p-4 text-center">
+                    <h4 class="mb-0 fw-bold">Resultado del Proceso</h4>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <?php if ($exito): ?>
+                        <div class="alert alert-success border-0 shadow-sm p-4 mb-4" role="alert">
+                            <h5 class="fw-bold mb-3"><?php echo $mensaje; ?></h5>
+                            <hr>
+                            <div class="text-start">
+                                <p class="mb-1"><strong>Matrícula:</strong> <?php echo htmlspecialchars($matricula_al); ?></p>
+                                <p class="mb-1"><strong>Nombre:</strong> <?php echo htmlspecialchars($nombre_al . ' ' . $apaterno_al . ' ' . $amaterno_al); ?></p>
+                                <p class="mb-1"><strong>Domicilio:</strong> <?php echo htmlspecialchars($dom_al ?: 'N/A'); ?></p>
+                                <p class="mb-1"><strong>Correo:</strong> <?php echo htmlspecialchars($mail_al ?: 'N/A'); ?></p>
+                                <p class="mb-0"><strong>Teléfono:</strong> <?php echo htmlspecialchars($tel_al ?: 'N/A'); ?></p>
+                            </div>
                         </div>
+                    <?php else: ?>
+                        <div class="alert alert-danger border-0 shadow-sm p-4 mb-4" role="alert">
+                            <h5 class="fw-bold mb-0"><?php echo $mensaje; ?></h5>
+                        </div>
+                    <?php endif; ?>
 
-                        <a href="../REGISTRO/alumnos.php" class="btn btn-outline-primary mt-3">Volver</a>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="../REGISTRO/alumnos.php" class="btn btn-outline-secondary px-4">Registrar Otro</a>
+                        <a href="../CRUDE/crudealumnos.php" class="btn btn-primary fw-bold px-4" style="background: #1e3c72; border: none;">Ver Alumnos</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,50 +1,81 @@
+<?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+include '../conexion.php'; 
+
+if (!isset($conexion) && isset($mysqli)) {
+    $conexion = $mysqli;
+}
+
+$descripcion_grupo = trim($_POST['descripcion_grupo'] ?? $_POST['nom_grupo'] ?? $_POST['grupo'] ?? '');
+
+$mensaje = "";
+$exito = false;
+
+if ($conexion && !empty($descripcion_grupo)) {
+    $desc_e = mysqli_real_escape_string($conexion, $descripcion_grupo);
+
+    $sql = "INSERT INTO grupo (descripcion_grupo, estatus_grupo) VALUES ('$desc_e', 'ALTA')";
+
+    if (mysqli_query($conexion, $sql)) {
+        $exito = true;
+        $mensaje = "¡Grupo registrado con éxito!";
+    } else {
+        $mensaje = "Error al registrar el grupo: " . mysqli_error($conexion);
+    }
+} else {
+    $mensaje = "Por favor ingrese el nombre o descripción del grupo.";
+}
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Procesar Grupo</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Resultado del Registro - Escuela IICP</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .custom-header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; }
+    </style>
 </head>
 <body class="bg-light">
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-md-5">
-                <div class="card shadow-sm border-0 text-center">
-                    <div class="card-header bg-success text-white py-3">
-                        <h4 class="mb-0 fw-bold">Resultado del Proceso</h4>
-                    </div>
-                    <div class="card-body p-4">
-                        <?php
-                        require_once "../conexion.php";
 
-                        // Recibir el campo enviado desde REGISTRO/grupos.php
-                        $descripcion = $_POST['descripcion'] ?? '';
+<?php if (file_exists('../navegacion.php')) include '../navegacion.php'; ?>
 
-                        // Inserción en la tabla grupo usando la columna exacta: descripcion_grupo
-                        $sql = "INSERT INTO grupo (descripcion_grupo) VALUES (?)";
-
-                        if ($stmt = $mysqli->prepare($sql)) {
-                            $stmt->bind_param("s", $descripcion);
-                            $stmt->execute();
-                            $stmt->close();
-                        } else {
-                            echo "<div class='alert alert-danger'>Error SQL: " . htmlspecialchars($mysqli->error) . "</div>";
-                        }
-                        ?>
-
-                        <div class="alert alert-success" role="alert">
-                            <h5 class="alert-heading fw-bold mb-2">¡Grupo registrado con éxito!</h5>
-                            <p class="mb-0">
-                                <strong>Descripción:</strong> <?php echo htmlspecialchars($descripcion); ?>
-                            </p>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                <div class="card-header custom-header p-4 text-center">
+                    <h4 class="mb-0 fw-bold">Resultado del Proceso</h4>
+                </div>
+                <div class="card-body p-4 text-center">
+                    <?php if ($exito): ?>
+                        <div class="alert alert-success border-0 shadow-sm p-4 mb-4" role="alert">
+                            <h5 class="fw-bold mb-3"><?php echo $mensaje; ?></h5>
+                            <hr>
+                            <div class="text-start">
+                                <p class="mb-0"><strong>Descripción:</strong> <?php echo htmlspecialchars($descripcion_grupo); ?></p>
+                            </div>
                         </div>
+                    <?php else: ?>
+                        <div class="alert alert-danger border-0 shadow-sm p-4 mb-4" role="alert">
+                            <h5 class="fw-bold mb-0"><?php echo $mensaje; ?></h5>
+                        </div>
+                    <?php endif; ?>
 
-                        <a href="../REGISTRO/grupos.php" class="btn btn-outline-success mt-3">Volver</a>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="../REGISTRO/grupos.php" class="btn btn-outline-secondary px-4">Registrar Otro</a>
+                        <a href="../CRUDE/crudegrupos.php" class="btn btn-primary fw-bold px-4" style="background: #1e3c72; border: none;">Ver Grupos</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
